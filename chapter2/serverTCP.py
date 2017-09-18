@@ -29,4 +29,4 @@ while True:
 
     client_handler = Thread(target=handle_client, args=(client,))
     client_handler.start()
-
+''' thread to handle the client connection,main server loop is ready to handle another incomming connection'''
