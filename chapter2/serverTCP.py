@@ -12,6 +12,7 @@ ser_sock.listen(5)
 
 print("[*] Listening on %s:%d" % (bind_ip, bind_port))
 
+
 def handle_client(client_socket):
     '''print the message the clent send'''
     request = client_socket.recv(1024)
@@ -20,6 +21,8 @@ def handle_client(client_socket):
     client_socket.send("ACK")
     client_socket.close()
 
+
+''' accept() function will return the client-socket and client-addr'''
 while True:
     client, addr = ser_sock.accept()
     print("[*] Accepted connection from %s:%d" % (addr[0], addr[1]))
