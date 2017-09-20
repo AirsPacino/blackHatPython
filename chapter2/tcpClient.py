@@ -1,7 +1,7 @@
 from socket import *
 
-ser_host = "127.0.0.1"
-ser_port = 6666 
+ser_host = "www.baidu.com"
+ser_port = 80 
 
 cli_sock = socket(AF_INET, SOCK_STREAM)
 

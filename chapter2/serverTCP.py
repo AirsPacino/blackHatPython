@@ -15,7 +15,7 @@ print("[*] Listening on %s:%d" % (bind_ip, bind_port))
 
 def handle_client(client_socket):
     '''print the message the clent send'''
-    request = client_socket.recv(1024)
+    request = client_socket.recv(4096)
     print("[*] Received: %s" % request)
 
     client_socket.send("ACK")

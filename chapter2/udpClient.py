@@ -1,7 +1,7 @@
 from socket import *
 
 dst_host = "127.0.0.1"
-dst_port = 9999
+dst_port = 6666
 
 cli_sock = socket(AF_INET, SOCK_DGRAM)
 

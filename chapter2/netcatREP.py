@@ -73,10 +73,11 @@ def main():
 	if not listen and len(target) and port > 0:
 		buffer = sys.stdin.read()
 		client_sender(buffer)
+
 	if listen:
 		server_loop()
 
-def client_sennder(buffer):
+def client_sender(buffer):
 	client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	try:	
 		client.connect((target, port))
@@ -96,8 +97,8 @@ def client_sennder(buffer):
 					if len_recv < 4096:
 						break
 
-				print(response)
-				buffer = raw_input()
+				print('\n' + response)
+				buffer = raw_input("please enter: ")
 				buffer = buffer + '\n'
 				client_send(buffer)
 						
@@ -107,6 +108,7 @@ def client_sennder(buffer):
 
 def server_loop():
 	global target
+	global port
 		
 	if not len(target):
 		target = '0.0.0.0'
@@ -114,44 +116,42 @@ def server_loop():
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.bind((target, port))
 	server.listen(5)
-	print("[*] Server Listening on port:%d" % port)
-
-	def handle_func(client_socket):
-		response = client_socket.recv(4096)
-		print("Recieved:%s" % response)
+	print("[*] Server Listening on %s:%d" % (target, port))
 
 
 	while True:
 		client, addr = server.accept()
-		handler = threading.Thread(target=handle_func, args=(client,))
+		print("[*] client addr:%s, clinet port:%d" %(addr[0], addr[1]))
+		handler = threading.Thread(target=client_handler, args=(client,))
 		handler.start()
 
 def run_command(command):
 
 	command = command.rstrip()
-
 	try:
 		output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
 	except:
 		output = "Failed to excute command.\r\n"
-
 	return output
 
 def client_handler(client_socket):
 	global upload
 	global execute
 	global command
+	
 
 	if len(upload_destination):
 		file_buffer = ""
 
 		while True:
-			data = client_socket.recv(1024)
-				
-			if not data:
+			data = client_socket.recv(4096)
+			
+			if data == 'exit':
 				break
 			else:
+				data = data + '\n[*] '
 				file_buffer += data
+				print("[*] file_buffer: " + file_buffer)
 
 		try:
 			file_descriptor = open(upload_destination, "wb")
@@ -162,13 +162,16 @@ def client_handler(client_socket):
 		except:
 			client_socket.send("Failed to save file to %s\r\n" %upload_destination)
 
-
+		print "will exit..."
 	if len(execute):
+		print("I'm in execute")
+		print("execute: " + execute)
 		output = run_command(execute)
 		client_socket.send(output)
 
 	if command:
-
+		
+		print("I'm in command")
 		while True:
 
 			client_socket.send("<BHP:#>")
@@ -176,7 +179,8 @@ def client_handler(client_socket):
 
 			while '\n' not in cmd_buffer:
 
-				cmd_buffer += client_socket_recv(1024)
+				cmd_buffer = client_socket.recv(1024)
+				print("cmd_buffer: " + cmd_buffer)
 				response = run_command(cmd_buffer)
 				client_socket.send(response)
 
