@@ -71,7 +71,7 @@ def main():
 			assert False, "Unhandled Option"
 
 	if not listen and len(target) and port > 0:
-		buffer = sys.stdin.read()
+		buffer = raw_input("command ~$ ")
 		client_sender(buffer)
 
 	if listen:
@@ -98,9 +98,9 @@ def client_sender(buffer):
 						break
 
 				print('\n' + response)
-				buffer = raw_input("please enter: ")
+				buffer = raw_input("command ~$ ")
 				buffer = buffer + '\n'
-				client_send(buffer)
+				client.send(buffer)
 						
 	except:
 		print("[*] Excepting, exiting...")
@@ -145,8 +145,7 @@ def client_handler(client_socket):
 
 		while True:
 			data = client_socket.recv(4096)
-			
-			if data == 'exit':
+			if not data:
 				break
 			else:
 				data = data + '\n[*] '
@@ -162,25 +161,21 @@ def client_handler(client_socket):
 		except:
 			client_socket.send("Failed to save file to %s\r\n" %upload_destination)
 
-		print "will exit..."
+		print "[*] Will exit..."
+		sys.exit(0)
 	if len(execute):
-		print("I'm in execute")
-		print("execute: " + execute)
 		output = run_command(execute)
 		client_socket.send(output)
 
 	if command:
 		
-		print("I'm in command")
 		while True:
 
-			client_socket.send("<BHP:#>")
 			cmd_buffer = ""
 
 			while '\n' not in cmd_buffer:
 
 				cmd_buffer = client_socket.recv(1024)
-				print("cmd_buffer: " + cmd_buffer)
 				response = run_command(cmd_buffer)
 				client_socket.send(response)
 
